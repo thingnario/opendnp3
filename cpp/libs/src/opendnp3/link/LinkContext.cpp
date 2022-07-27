@@ -63,6 +63,7 @@ LinkContext::LinkContext(const openpal::Logger& logger,
 
 bool LinkContext::OnLowerLayerUp()
 {
+    FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[LinkContext::OnLowerLayerUp] begin");
     if (this->isOnline)
     {
         SIMPLE_LOG_BLOCK(logger, flags::ERR, "Layer already online");

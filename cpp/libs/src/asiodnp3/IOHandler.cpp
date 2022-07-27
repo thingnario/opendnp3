@@ -131,26 +131,32 @@ bool IOHandler::AddContext(const std::shared_ptr<opendnp3::ILinkSession>& sessio
 
 bool IOHandler::Enable(const std::shared_ptr<opendnp3::ILinkSession>& session)
 {
+    FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[IOHandler::Enable] begin");
     auto matches = [&](const Session& rec) { return rec.Matches(session); };
 
     const auto iter = std::find_if(sessions.begin(), sessions.end(), matches);
 
-    if (iter == sessions.end())
+    if (iter == sessions.end()) {
+        FORMAT_LOG_BLOCK(logger, opendnp3::flags::ERR, "[IOHandler::Enable] unable to find session");
         return false;
+    }
 
-    if (iter->enabled)
+    if (iter->enabled) {
+        FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[IOHandler::Enable] already enabled");
         return true; // already enabled
+    }
 
     iter->enabled = true;
 
     if (this->channel)
     {
+        FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[IOHandler::Enable] lower layer up");
         iter->LowerLayerUp();
     }
     else
     {
+        FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[IOHandler::Enable] channel not available yet??");
         this->UpdateListener(ChannelState::OPENING);
-
         this->BeginChannelAccept();
     }
 
@@ -211,6 +217,7 @@ bool IOHandler::Remove(const std::shared_ptr<opendnp3::ILinkSession>& session)
 
 void IOHandler::OnNewChannel(const std::shared_ptr<asiopal::IAsyncChannel>& channel)
 {
+    FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[IOHandler::OnNewChannel] begin");
     // if we have an active channel, and we're configured to close new channels
     // close the new channel instead
     if (this->channel && !this->close_existing)
@@ -233,8 +240,10 @@ void IOHandler::OnNewChannel(const std::shared_ptr<asiopal::IAsyncChannel>& chan
 
     for (auto& session : this->sessions)
     {
+        FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[IOHandler::OnNewChannel] loop session");
         if (session.enabled)
         {
+            FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[IOHandler::OnNewChannel] session.LowerLayerUp");
             session.LowerLayerUp();
         }
     }

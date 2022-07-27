@@ -92,6 +92,7 @@ private:
                                                             IMasterApplication& application);
 
     std::vector<std::shared_ptr<IMasterTask>> boundTasks;
+    openpal::Logger logger;
 };
 
 } // namespace opendnp3

@@ -26,6 +26,8 @@
 #include "asiodnp3/MasterScan.h"
 #include "asiodnp3/MasterStackConfig.h"
 #include "asiodnp3/StackBase.h"
+#include "openpal/logging/LogMacros.h"
+#include "opendnp3/LogLevels.h"
 
 namespace asiodnp3
 {
@@ -82,6 +84,7 @@ public:
 
     bool OnLowerLayerUp() override
     {
+        FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "MasterStack::OnLowerLayerUp] begin");
         return this->tstack.link->OnLowerLayerUp();
     }
 

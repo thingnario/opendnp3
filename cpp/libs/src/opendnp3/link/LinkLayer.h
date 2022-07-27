@@ -55,6 +55,7 @@ public:
 private:
     // The full state
     LinkContext ctx;
+    openpal::Logger logger;
 };
 
 } // namespace opendnp3

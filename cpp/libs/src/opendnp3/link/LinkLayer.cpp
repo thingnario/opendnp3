@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 #include "LinkLayer.h"
+#include "openpal/logging/LogMacros.h"
+#include "opendnp3/LogLevels.h"
 
 using namespace openpal;
 
@@ -29,7 +31,7 @@ LinkLayer::LinkLayer(const openpal::Logger& logger,
                      const std::shared_ptr<IUpperLayer>& upper,
                      const std::shared_ptr<opendnp3::ILinkListener>& listener,
                      const LinkLayerConfig& config)
-    : ctx(logger, executor, upper, listener, *this, config)
+    : ctx(logger, executor, upper, listener, *this, config), logger(logger)
 {
 }
 
@@ -67,6 +69,7 @@ bool LinkLayer::Send(ITransportSegment& segments)
 
 bool LinkLayer::OnLowerLayerUp()
 {
+    FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[LinkLayer::OnLowerLayerUp] begin");
     return ctx.OnLowerLayerUp();
 }
 

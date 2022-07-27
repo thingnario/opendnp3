@@ -60,6 +60,7 @@ MasterStack::MasterStack(const Logger& logger,
 
 bool MasterStack::Enable()
 {
+    FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[MasterStack::Enable] begin");
     auto action = [self = shared_from_this()] { return self->iohandler->Enable(self); };
     return this->executor->ReturnFrom<bool>(action);
 }

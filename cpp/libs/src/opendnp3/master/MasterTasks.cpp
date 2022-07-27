@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 #include "MasterTasks.h"
+#include "openpal/logging/LogMacros.h"
+#include "opendnp3/LogLevels.h"
 
 #include "opendnp3/master/AssignClassTask.h"
 #include "opendnp3/master/ClearRestartTask.h"
@@ -47,12 +49,15 @@ MasterTasks::MasterTasks(const MasterParams& params,
       // optional tasks
       disableUnsol(GetDisableUnsolTask(context, params, logger, app)),
       enableUnsol(GetEnableUnsolTask(context, params, logger, app)),
-      timeSynchronization(GetTimeSyncTask(context, params.timeSyncMode, logger, app))
+      timeSynchronization(GetTimeSyncTask(context, params.timeSyncMode, logger, app)),
+      logger(logger)
 {
+    FORMAT_LOG_BLOCK(this->logger, opendnp3::flags::DBG, "MasterTasks::MasterTasks get called");
 }
 
 void MasterTasks::Initialize(IMasterScheduler& scheduler, IMasterTaskRunner& runner)
 {
+    FORMAT_LOG_BLOCK(this->logger, opendnp3::flags::DBG, "MasterTasks::Initialize get called");
     for (auto& task :
          {clearRestart, assignClass, startupIntegrity, eventScan, enableUnsol, disableUnsol, timeSynchronization})
     {
@@ -88,6 +93,7 @@ bool MasterTasks::DemandIntegrity()
 
 void MasterTasks::OnRestartDetected()
 {
+    FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "OnRestartDetected get called\n");
     this->Demand(this->clearRestart);
     this->Demand(this->assignClass);
     this->Demand(this->startupIntegrity);

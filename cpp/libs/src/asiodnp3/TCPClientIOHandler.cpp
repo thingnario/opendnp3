@@ -21,6 +21,8 @@
 #include "TCPClientIOHandler.h"
 
 #include "asiopal/SocketChannel.h"
+#include "openpal/logging/LogMacros.h"
+#include "opendnp3/LogLevels.h"
 
 #include <utility>
 
@@ -51,6 +53,7 @@ void TCPClientIOHandler::ShutdownImpl()
 
 void TCPClientIOHandler::BeginChannelAccept()
 {
+    FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[TCPClientIOHandler::BeginChannelAccept] begin");
     this->client = TCPClient::Create(logger, executor, adapter);
     this->StartConnect(this->retry.minOpenRetry);
 }
@@ -69,11 +72,13 @@ bool TCPClientIOHandler::StartConnect(const openpal::TimeDuration& delay)
 {
     if (!client)
     {
+        FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[TCPClientIOHandler::StartConnect] client not ready");
         return false;
     }
 
     auto cb = [=, self = shared_from_this()](const std::shared_ptr<Executor>& executor, asio::ip::tcp::socket socket,
                                              const std::error_code& ec) -> void {
+        FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[TCPClientIOHandler::StartConnect] callback");
         if (ec)
         {
             FORMAT_LOG_BLOCK(this->logger, openpal::logflags::WARN, "Error Connecting: %s", ec.message().c_str());
@@ -100,6 +105,7 @@ bool TCPClientIOHandler::StartConnect(const openpal::TimeDuration& delay)
 
             if (client)
             {
+                FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "[TCPClientIOHandler::StartConnect] client present, call OnNewChannel");
                 this->OnNewChannel(SocketChannel::Create(executor, std::move(socket)));
             }
         }

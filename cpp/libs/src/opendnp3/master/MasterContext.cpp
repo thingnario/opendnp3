@@ -19,6 +19,10 @@
  */
 #include "MasterContext.h"
 
+#include <iostream>
+#include <chrono>
+#include <ctime>
+
 #include <openpal/logging/LogMacros.h>
 
 #include "opendnp3/LogLevels.h"
@@ -60,10 +64,16 @@ MContext::MContext(const Addresses& addresses,
       txBuffer(params.maxTxFragSize),
       tstate(TaskState::IDLE)
 {
+    FORMAT_LOG_BLOCK(
+        this->logger,
+        opendnp3::flags::DBG,
+        "MContext::MContext get called(%d->%d)",
+        addresses.source, addresses.destination);
 }
 
 bool MContext::OnLowerLayerUp()
 {
+    FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "MContext::OnLowerLayerUp get called");
     if (isOnline)
     {
         return false;
@@ -80,6 +90,7 @@ bool MContext::OnLowerLayerUp()
 
 bool MContext::OnLowerLayerDown()
 {
+    FORMAT_LOG_BLOCK(logger, opendnp3::flags::DBG, "MContext::OnLowerLayerDown get called");
     if (!isOnline)
     {
         return false;
