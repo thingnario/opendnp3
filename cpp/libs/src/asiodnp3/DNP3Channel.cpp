@@ -44,7 +44,7 @@ DNP3Channel::DNP3Channel(const Logger& logger,
 
       logger(logger),
       executor(executor),
-      scheduler(std::make_shared<MasterSchedulerBackend>(executor)),
+      scheduler(std::make_shared<MasterSchedulerBackend>(executor, logger)),
       iohandler(std::move(iohandler)),
       manager(std::move(manager)),
       resources(ResourceManager::Create())

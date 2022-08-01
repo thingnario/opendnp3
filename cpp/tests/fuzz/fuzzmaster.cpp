@@ -40,7 +40,7 @@ public:
           meas(std::make_shared<opendnp3::MockSOEHandler>()),
           lower(std::make_shared<opendnp3::MockLowerLayer>()),
           application(std::make_shared<opendnp3::MockMasterApplication>()),
-          scheduler(std::make_shared<opendnp3::MasterSchedulerBackend>(exe)),
+          scheduler(std::make_shared<opendnp3::MasterSchedulerBackend>(exe, log.logger)),
           context(addresses, log.logger, exe, lower, meas, application, this->scheduler, params)
     {
         lower->SetUpperLayer(context);

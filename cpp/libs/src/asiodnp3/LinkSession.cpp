@@ -161,7 +161,7 @@ std::shared_ptr<IMasterSession> LinkSession::AcceptSession(const std::string& lo
     this->logger.Rename(loggerid);
 
     this->stack = MasterSessionStack::Create(this->logger, this->channel->executor, SOEHandler, application,
-                                             std::make_shared<MasterSchedulerBackend>(this->channel->executor),
+                                             std::make_shared<MasterSchedulerBackend>(this->channel->executor, this->logger),
                                              shared_from_this(), *this, config);
 
     return stack;

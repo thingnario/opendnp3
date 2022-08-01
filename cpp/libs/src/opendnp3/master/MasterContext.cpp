@@ -456,6 +456,7 @@ MContext::TaskState MContext::ResumeActiveTask()
     /// try to build a requst for the task
     if (!this->activeTask->BuildRequest(request, this->solSeq))
     {
+        FORMAT_LOG_BLOCK(logger, flags::WARN, "Build request failed for : %s", this->activeTask->Name());
         activeTask->OnMessageFormatError(executor->GetTime());
         this->CompleteActiveTask();
         return TaskState::IDLE;
@@ -533,6 +534,7 @@ MContext::TaskState MContext::OnResponse_WaitForResponse(const APDUResponseHeade
     auto now = this->executor->GetTime();
 
     auto result = this->activeTask->OnResponse(header, objects, now);
+    FORMAT_LOG_BLOCK(this->logger, flags::INFO, "[MContext::OnResponse_WaitForResponse] result : %d", result);
 
     if (header.control.CON)
     {

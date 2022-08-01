@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 #include "MasterSchedulerBackend.h"
+#include <openpal/logging/LogMacros.h>
+#include "opendnp3/LogLevels.h"
 
 #include <algorithm>
 
@@ -26,8 +28,8 @@ using namespace openpal;
 namespace opendnp3
 {
 
-MasterSchedulerBackend::MasterSchedulerBackend(const std::shared_ptr<openpal::IExecutor>& executor)
-    : executor(executor), taskTimer(*executor), taskStartTimeout(*executor)
+MasterSchedulerBackend::MasterSchedulerBackend(const std::shared_ptr<openpal::IExecutor>& executor, const openpal::Logger& logger)
+    : executor(executor), taskTimer(*executor), taskStartTimeout(*executor), logger(logger)
 {
 }
 
@@ -46,6 +48,7 @@ void MasterSchedulerBackend::Add(const std::shared_ptr<IMasterTask>& task, IMast
     if (this->isShutdown)
         return;
 
+    FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] Task Added: %s", task->Name());
     this->tasks.emplace_back(task, runner);
     this->PostCheckForTaskRun();
 }
@@ -55,11 +58,13 @@ void MasterSchedulerBackend::SetRunnerOffline(const IMasterTaskRunner& runner)
     if (this->isShutdown)
         return;
 
+    FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] SetRunnerOffline");
     const auto now = this->executor->GetTime();
 
-    auto checkForOwnership = [now, &runner](const Record& record) -> bool {
+    auto checkForOwnership = [now, &runner, this](const Record& record) -> bool {
         if (record.BelongsTo(runner))
         {
+            FORMAT_LOG_BLOCK(this->logger, flags::INFO, "[MasterSchedulerBackend] SetRunnerOffline, task (%s) removed", record.task->Name());
             if (!record.task->IsRecurring())
             {
                 record.task->OnLowerLayerClose(now);
@@ -90,6 +95,7 @@ bool MasterSchedulerBackend::CompleteCurrentFor(const IMasterTaskRunner& runner)
     if (!this->current.BelongsTo(runner))
         return false;
 
+    FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] CompleteCurrentFor %s", this->current.task->Name());
     if (this->current.task->IsRecurring())
     {
         this->Add(this->current.task, *this->current.runner);
@@ -128,15 +134,19 @@ void MasterSchedulerBackend::PostCheckForTaskRun()
 
 bool MasterSchedulerBackend::CheckForTaskRun()
 {
-    if (this->isShutdown)
+    if (this->isShutdown) {
+        FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] CheckForTaskRun,  isShutdown is true");
         return false;
+    }
 
     this->taskCheckPending = false;
 
     this->RestartTimeoutTimer();
 
-    if (this->current)
+    if (this->current) {
+        FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] current task %s present", this->current.task->Name());
         return false;
+    }
 
     const auto now = this->executor->GetTime();
 
@@ -158,10 +168,12 @@ bool MasterSchedulerBackend::CheckForTaskRun()
     }
 
     // is the task runnable now?
+    FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] expiration time for best task %s is %lld", this->current.task->Name(), best_task->task->ExpirationTime().milliseconds);
     const auto IS_EXPIRED = now.milliseconds >= best_task->task->ExpirationTime().milliseconds;
     if (IS_EXPIRED)
     {
         this->current = *best_task;
+        FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] change current task to %s", this->current.task->Name());
         this->tasks.erase(best_task);
         this->current.runner->Run(this->current.task);
 
@@ -206,12 +218,13 @@ void MasterSchedulerBackend::TimeoutTasks()
         return;
 
     // find the minimum start timeout value
-    auto isTimedOut = [now = this->executor->GetTime()](const Record& record) -> bool {
+    auto isTimedOut = [now = this->executor->GetTime(), this](const Record& record) -> bool {
         if (record.task->IsRecurring() || record.task->StartExpirationTime() > now)
         {
             return false;
         }
 
+        FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] remove timeout task %s", record.task->Name());
         record.task->OnStartTimeout(now);
 
         return true;

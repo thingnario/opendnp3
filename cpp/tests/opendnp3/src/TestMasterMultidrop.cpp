@@ -41,8 +41,8 @@ TEST_CASE(SUITE("Multidrop scheduling is priroity based"))
     params.disableUnsolOnStartup = false;
 
     const auto executor = std::make_shared<testlib::MockExecutor>();
-    const auto scheduler = std::make_shared<opendnp3::MasterSchedulerBackend>(executor);
     const auto log = std::make_shared<testlib::MockLogHandlerImpl>();
+    const auto scheduler = std::make_shared<opendnp3::MasterSchedulerBackend>(executor, log);
 
     MasterTestFixture t1(params, Addresses(1, 10), "s1", log, executor, scheduler);
     MasterTestFixture t2(params, Addresses(1, 11), "s2", log, executor, scheduler);
@@ -83,8 +83,8 @@ TEST_CASE(SUITE("Shutting down a master causes 2nd master to run scheduled task"
     params.disableUnsolOnStartup = false;
 
     const auto executor = std::make_shared<testlib::MockExecutor>();
-    const auto scheduler = std::make_shared<opendnp3::MasterSchedulerBackend>(executor);
     const auto log = std::make_shared<testlib::MockLogHandlerImpl>();
+    const auto scheduler = std::make_shared<opendnp3::MasterSchedulerBackend>(executor, log);
 
     MasterTestFixture t1(params, Addresses(1, 10), "s1", log, executor, scheduler);
     MasterTestFixture t2(params, Addresses(1, 11), "s2", log, executor, scheduler);
@@ -112,8 +112,8 @@ TEST_CASE(SUITE("Scheduler executes other session's tasks if a session is timing
     MasterParams params;
 
     const auto executor = std::make_shared<testlib::MockExecutor>();
-    const auto scheduler = std::make_shared<opendnp3::MasterSchedulerBackend>(executor);
     const auto log = std::make_shared<testlib::MockLogHandlerImpl>();
+    const auto scheduler = std::make_shared<opendnp3::MasterSchedulerBackend>(executor, log);
 
     MasterTestFixture t1(params, Addresses(1, 10), "s1", log, executor, scheduler);
     MasterTestFixture t2(params, Addresses(1, 11), "s2", log, executor, scheduler);
@@ -133,8 +133,8 @@ TEST_CASE(SUITE("Scheduler executes other session's tasks if a session is timing
 TEST_CASE(SUITE("Scheduler still does integrity polls if exception scan set to high interval"))
 {
     const auto executor = std::make_shared<testlib::MockExecutor>();
-    const auto scheduler = std::make_shared<opendnp3::MasterSchedulerBackend>(executor);
     const auto log = std::make_shared<testlib::MockLogHandlerImpl>();
+    const auto scheduler = std::make_shared<opendnp3::MasterSchedulerBackend>(executor, log);
 
     MasterTestFixture t1(NoStartupTasks(), Addresses(1, 10), "s1", log, executor, scheduler);
     MasterTestFixture t2(NoStartupTasks(), Addresses(1, 11), "s2", log, executor, scheduler);

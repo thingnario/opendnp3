@@ -49,7 +49,7 @@ MasterTestFixture::MasterTestFixture(const MasterParams& params,
       meas(std::make_shared<MockSOEHandler>()),
       lower(std::make_shared<MockLowerLayer>()),
       application(std::make_shared<MockMasterApplication>()),
-      scheduler(scheduler ? scheduler : std::make_shared<MasterSchedulerBackend>(exe)),
+      scheduler(scheduler ? scheduler : std::make_shared<MasterSchedulerBackend>(exe, log)),
       context(std::make_shared<MContext>(
           addresses, openpal::Logger(log, id, ~0), exe, lower, meas, application, this->scheduler, params))
 {

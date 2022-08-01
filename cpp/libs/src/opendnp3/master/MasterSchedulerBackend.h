@@ -63,7 +63,7 @@ class MasterSchedulerBackend final : public IMasterScheduler,
     };
 
 public:
-    explicit MasterSchedulerBackend(const std::shared_ptr<openpal::IExecutor>& executor);
+    explicit MasterSchedulerBackend(const std::shared_ptr<openpal::IExecutor>& executor, const openpal::Logger& logger);
 
     virtual void Shutdown() override;
 
@@ -97,6 +97,8 @@ private:
     std::shared_ptr<openpal::IExecutor> executor;
     openpal::TimerRef taskTimer;
     openpal::TimerRef taskStartTimeout;
+
+    openpal::Logger logger;
 
     enum class Comparison : uint8_t
     {
