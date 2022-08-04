@@ -168,7 +168,7 @@ bool MasterSchedulerBackend::CheckForTaskRun()
     }
 
     // is the task runnable now?
-    FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] expiration time for best task %s is %lld", this->current.task->Name(), best_task->task->ExpirationTime().milliseconds);
+    FORMAT_LOG_BLOCK(logger, flags::INFO, "[MasterSchedulerBackend] expiration time for best task %s is %lld", best_task->task->Name(), best_task->task->ExpirationTime().milliseconds);
     const auto IS_EXPIRED = now.milliseconds >= best_task->task->ExpirationTime().milliseconds;
     if (IS_EXPIRED)
     {
